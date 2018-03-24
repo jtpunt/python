@@ -10,37 +10,37 @@ def dist(cityOne, cityTwo):
 
 
 # merges two subarrays of prqu
-# First subarray is prqu[1..m]
-# Second subarray is prqu[m+1..r]
-def merge(prqu, cost, low, high, mid):
+# First subarray is pQueue[1..m]
+# Second subarray is pQueue[m+1..r]
+def merge(pQueue, key, low, high, mid):
     i = low
     j = mid + 1
     temp = []
     # Merge the two halves into temp
     while i <= mid and j <= high:
-        if cost[prqu[i]] < cost[prqu[j]]:
-            temp.append(prqu[i])
+        if key[pQueue[i]] < key[pQueue[j]]:
+            temp.append(pQueue[i])
             i += 1
         else:
-            temp.append(prqu[j])
+            temp.append(pQueue[j])
             j += 1
     # Push all the remaining values from i to mid into temp
     while i <= mid:
-        temp.append(prqu[i])
+        temp.append(pQueue[i])
         i += 1
     # Push all the remaining values from j to high into temp
     while j <= high:
-        temp.append(prqu[j])
+        temp.append(pQueue[j])
         j += 1
 
     for i in range(low, high+1):
-        prqu[i] = temp[i-low]
-def mergeSort(prqu, cost, low, high):
+        pQueue[i] = temp[i-low]
+def mergeSort(pQueue, cost, low, high):
     if low < high:
         mid = (low + high) // 2
-        mergeSort(prqu, cost, low, mid) # sort first half
-        mergeSort(prqu, cost, mid+1, high) # sort second half
-        merge(prqu, cost, low, high, mid)
+        mergeSort(pQueue, cost, low, mid) # sort first half
+        mergeSort(pQueue, cost, mid+1, high) # sort second half
+        merge(pQueue, cost, low, high, mid)
 
 
 def MST_Prim(adjMatrix):
@@ -53,19 +53,28 @@ def MST_Prim(adjMatrix):
     while len(prqu) > 0:
         u = prqu.pop(0)
         for v in [v for v in prqu if adjMatrix[u][v] < key[v]]:
-            parent[v] = u
+            parent[v] = u   # update how we got to vertex v (from vertex u)
             key[v] = adjMatrix[u][v]
             mergeSort(prqu, key, 0, len(prqu) - 1)
     return parent
 
 def mstToAdjList(adjMatrix, mst):
     adjList = {}
-    for i in range(0, len(adjMatrix)): # loop through all cities
-        adjV = {}
-        for j in range(0, len(mst)): # loop through all parent data
-            if i == mst[j]:
-                adjV[j] = adjMatrix[i][j]
-        adjList[i] = adjV
+    # for j in range(1, len(adjMatrix) - 1):
+    #     if j in mst:
+    #         print(j, ' ', mst[j])
+    #         # adjList[mst[j]].append({j: adjMatrix[j][mst[j]]})
+    #     else:
+    #         adjList[mst[j]] = {j: adjMatrix[j][mst[j]]}
+    #     print('j = ', j, ' mst[j] = ', mst[j], ' ', adjMatrix[j][mst[j]])
+    # print(adjList[1])
+    # return adjList
+    for i in range(0, len(adjMatrix)): # loop through all cities from 0 to len(adjMatrix)
+        adjV = {} #
+        for j in [j for j in range(0, len(mst)) if i == mst[j]]:
+            adjV[j] = adjMatrix[i][j] # key = city 0 ... len(mst): value = distance from i to j
+            print('i = ', i, ' j = ', j, ' ', adjV[j])
+        adjList[i] = adjV    # key = city 0 ... len(mst): value: [(key) != adjList[i] && key = city 0 ... len(mst): value = distance from i to j]
     return adjList
 
 def dfs(adjList):
@@ -141,7 +150,7 @@ def main():
     disc = dfs(adjList)
     #	print (disc)
 
-    # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
+    # # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
     totalDist = 0
     iterCities = iter(disc) # return an iterator for the given object
     prevCity = cities[disc[0]]
