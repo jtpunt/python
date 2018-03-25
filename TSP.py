@@ -1,3 +1,31 @@
+
+Skip to content
+This repository
+
+    Pull requests
+    Issues
+    Marketplace
+    Explore
+
+    @jtpunt
+
+0
+0
+
+    0
+
+jtpunt/python Private
+Code
+Issues 0
+Pull requests 0
+Projects 0
+Wiki
+Insights
+Settings
+python/TSP.py
+5bc13ce 4 minutes ago
+@jtpunt jtpunt Update TSP.py
+181 lines (162 sloc) 5.71 KB
 import math
 import sys
 
@@ -10,37 +38,37 @@ def dist(cityOne, cityTwo):
 
 
 # merges two subarrays of prqu
-# First subarray is pQueue[1..m]
-# Second subarray is pQueue[m+1..r]
-def merge(pQueue, key, low, high, mid):
+# First subarray is prqu[1..m]
+# Second subarray is prqu[m+1..r]
+def merge(prqu, cost, low, high, mid):
     i = low
     j = mid + 1
     temp = []
     # Merge the two halves into temp
     while i <= mid and j <= high:
-        if key[pQueue[i]] < key[pQueue[j]]:
-            temp.append(pQueue[i])
+        if cost[prqu[i]] < cost[prqu[j]]:
+            temp.append(prqu[i])
             i += 1
         else:
-            temp.append(pQueue[j])
+            temp.append(prqu[j])
             j += 1
     # Push all the remaining values from i to mid into temp
     while i <= mid:
-        temp.append(pQueue[i])
+        temp.append(prqu[i])
         i += 1
     # Push all the remaining values from j to high into temp
     while j <= high:
-        temp.append(pQueue[j])
+        temp.append(prqu[j])
         j += 1
 
     for i in range(low, high+1):
-        pQueue[i] = temp[i-low]
-def mergeSort(pQueue, cost, low, high):
+        prqu[i] = temp[i-low]
+def mergeSort(prqu, cost, low, high):
     if low < high:
         mid = (low + high) // 2
-        mergeSort(pQueue, cost, low, mid) # sort first half
-        mergeSort(pQueue, cost, mid+1, high) # sort second half
-        merge(pQueue, cost, low, high, mid)
+        mergeSort(prqu, cost, low, mid) # sort first half
+        mergeSort(prqu, cost, mid+1, high) # sort second half
+        merge(prqu, cost, low, high, mid)
 
 
 def MST_Prim(adjMatrix):
@@ -53,34 +81,15 @@ def MST_Prim(adjMatrix):
     while len(prqu) > 0:
         u = prqu.pop(0)
         for v in [v for v in prqu if adjMatrix[u][v] < key[v]]:
-            parent[v] = u   # update how we got to vertex v (from vertex u)
+            parent[v] = u
             key[v] = adjMatrix[u][v]
             mergeSort(prqu, key, 0, len(prqu) - 1)
     return parent
 
 def mstToAdjList(adjMatrix, mst):
-<<<<<<< HEAD
-    adjList = {}
-    # for j in range(1, len(adjMatrix) - 1):
-    #     if j in mst:
-    #         print(j, ' ', mst[j])
-    #         # adjList[mst[j]].append({j: adjMatrix[j][mst[j]]})
-    #     else:
-    #         adjList[mst[j]] = {j: adjMatrix[j][mst[j]]}
-    #     print('j = ', j, ' mst[j] = ', mst[j], ' ', adjMatrix[j][mst[j]])
-    # print(adjList[1])
-    # return adjList
-    for i in range(0, len(adjMatrix)): # loop through all cities from 0 to len(adjMatrix)
-        adjV = {} #
-        for j in [j for j in range(0, len(mst)) if i == mst[j]]:
-            adjV[j] = adjMatrix[i][j] # key = city 0 ... len(mst): value = distance from i to j
-            print('i = ', i, ' j = ', j, ' ', adjV[j])
-        adjList[i] = adjV    # key = city 0 ... len(mst): value: [(key) != adjList[i] && key = city 0 ... len(mst): value = distance from i to j]
-=======
     adjList = []
     for i in range(1, len(mst)):
         adjList.append({mst[i]: {i: adjMatrix[i][mst[i]]}})
->>>>>>> 5bc13ce4744379c1ccc2b027b55a00a6c2a572b3
     return adjList
     print(adjList[1][0])
     # stack = []
@@ -169,33 +178,6 @@ def main():
     #	print (adjList)
 
     # get DFS discovered order
-<<<<<<< HEAD
-    disc = dfs(adjList)
-    #	print (disc)
-
-    # # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
-    totalDist = 0
-    iterCities = iter(disc) # return an iterator for the given object
-    prevCity = cities[disc[0]]
-    next(iterCities)  # skip the very first city
-    for eachItem in iterCities:
-        eachCity = cities[eachItem]
-        # get distance to eachCity from the prevCity
-        addDist = dist(eachCity, prevCity)
-        totalDist = totalDist + addDist
-        prevCity = eachCity
-
-    # get distance from last city back to first city
-    addDist = dist(prevCity, cities[disc[0]])
-    totalDist = totalDist + addDist
-
-    # write output to file
-    # outFil.write(str(totalDist) + '\n')
-    print(totalDist)
-    iterCities = iter(disc)
-    for eachCity in iterCities:
-        print(eachCity)
-=======
     # disc = dfs(adjList)
     # #	print (disc)
     #
@@ -221,7 +203,6 @@ def main():
     # iterCities = iter(disc)
     # for eachCity in iterCities:
     #     print(eachCity)
->>>>>>> 5bc13ce4744379c1ccc2b027b55a00a6c2a572b3
 
 if __name__ == "__main__":
     main()
