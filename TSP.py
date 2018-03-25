@@ -59,14 +59,26 @@ def MST_Prim(adjMatrix):
     return parent
 
 def mstToAdjList(adjMatrix, mst):
-    adjList = {}
-    for i in range(0, len(adjMatrix)): # loop through all cities
-        adjV = {}
-        for j in range(0, len(mst)): # loop through all parent data
-            if i == mst[j]:
-                adjV[j] = adjMatrix[i][j]
-        adjList[i] = adjV
+    adjList = []
+    for i in range(1, len(mst)):
+        adjList.append({mst[i]: {i: adjMatrix[i][mst[i]]}})
     return adjList
+    print(adjList[1][0])
+    # stack = []
+    # stack.append(mst[0])
+    # while len(stack) != 0:
+    #     if stack[len(stack) - 1] in mst:
+    #         stack.append(mst.index(stack[len(stack) - 1]))
+    #     else:
+    #         stack.pop()
+    # adjList = {}
+    # for i in range(0, len(adjMatrix)): # loop through all cities
+    #     adjV = {}
+    #     for j in range(0, len(mst)): # loop through all parent data
+    #         if i == mst[j]:
+    #             adjV[j] = adjMatrix[i][j]
+    #     adjList[i] = adjV
+    # return adjList
 
 def dfs(adjList):
     vstd = []
@@ -138,31 +150,31 @@ def main():
     #	print (adjList)
 
     # get DFS discovered order
-    disc = dfs(adjList)
-    #	print (disc)
-
-    # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
-    totalDist = 0
-    iterCities = iter(disc) # return an iterator for the given object
-    prevCity = cities[disc[0]]
-    next(iterCities)  # skip the very first city
-    for eachItem in iterCities:
-        eachCity = cities[eachItem]
-        # get distance to eachCity from the prevCity
-        addDist = dist(eachCity, prevCity)
-        totalDist = totalDist + addDist
-        prevCity = eachCity
-
-    # get distance from last city back to first city
-    addDist = dist(prevCity, cities[disc[0]])
-    totalDist = totalDist + addDist
-
-    # write output to file
-    # outFil.write(str(totalDist) + '\n')
-    print(totalDist)
-    iterCities = iter(disc)
-    for eachCity in iterCities:
-        print(eachCity)
+    # disc = dfs(adjList)
+    # #	print (disc)
+    #
+    # # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
+    # totalDist = 0
+    # iterCities = iter(disc) # return an iterator for the given object
+    # prevCity = cities[disc[0]]
+    # next(iterCities)  # skip the very first city
+    # for eachItem in iterCities:
+    #     eachCity = cities[eachItem]
+    #     # get distance to eachCity from the prevCity
+    #     addDist = dist(eachCity, prevCity)
+    #     totalDist = totalDist + addDist
+    #     prevCity = eachCity
+    #
+    # # get distance from last city back to first city
+    # addDist = dist(prevCity, cities[disc[0]])
+    # totalDist = totalDist + addDist
+    #
+    # # write output to file
+    # # outFil.write(str(totalDist) + '\n')
+    # print(totalDist)
+    # iterCities = iter(disc)
+    # for eachCity in iterCities:
+    #     print(eachCity)
 
 if __name__ == "__main__":
     main()
