@@ -1,133 +1,104 @@
-
-Skip to content
-This repository
-
-    Pull requests
-    Issues
-    Marketplace
-    Explore
-
-    @jtpunt
-
-0
-0
-
-    0
-
-jtpunt/python Private
-Code
-Issues 0
-Pull requests 0
-Projects 0
-Wiki
-Insights
-Settings
-python/TSP.py
-5bc13ce 4 minutes ago
-@jtpunt jtpunt Update TSP.py
-181 lines (162 sloc) 5.71 KB
 import math
 import sys
+from collections import OrderedDict
 
-def dist(cityOne, cityTwo):
-    dx = cityOne['x'] - cityTwo['x']
-    dy = cityOne['y'] - cityTwo['y']
-    dxSq = math.pow(dx, 2)
-    dySq = math.pow(dy, 2)
-    return int(round(math.sqrt(dxSq + dySq)))
-
+def EuclideanDistance(c1, c2):
+    xSquared = math.pow(c1[1] - c2[1], 2)
+    ySquared = math.pow(c1[2] - c2[2], 2)
+    return int(round(math.sqrt(xSquared + ySquared)))
 
 # merges two subarrays of prqu
 # First subarray is prqu[1..m]
 # Second subarray is prqu[m+1..r]
-def merge(prqu, cost, low, high, mid):
+def merge(queue, key, low, high, mid):
     i = low
     j = mid + 1
     temp = []
     # Merge the two halves into temp
     while i <= mid and j <= high:
-        if cost[prqu[i]] < cost[prqu[j]]:
-            temp.append(prqu[i])
+        if key[queue[i]] < key[queue[j]]:
+            temp.append(queue[i])
             i += 1
         else:
-            temp.append(prqu[j])
+            temp.append(queue[j])
             j += 1
     # Push all the remaining values from i to mid into temp
     while i <= mid:
-        temp.append(prqu[i])
+        temp.append(queue[i])
         i += 1
     # Push all the remaining values from j to high into temp
     while j <= high:
-        temp.append(prqu[j])
+        temp.append(queue[j])
         j += 1
-
+    # Assign the sorted data stored from temp to v
     for i in range(low, high+1):
-        prqu[i] = temp[i-low]
-def mergeSort(prqu, cost, low, high):
+        queue[i] = temp[i-low]
+
+def mergeSort(queue, key, low, high):
     if low < high:
         mid = (low + high) // 2
-        mergeSort(prqu, cost, low, mid) # sort first half
-        mergeSort(prqu, cost, mid+1, high) # sort second half
-        merge(prqu, cost, low, high, mid)
+        mergeSort(queue, key, low, mid)    # sort first half
+        mergeSort(queue, key, mid+1, high) # sort second half
+        merge(queue, key, low, high, mid)
 
 
-def MST_Prim(adjMatrix):
-    key = [sys.maxsize for x in range(len(adjMatrix))] # populates a list from 0 to len(cities) with int max
-    parent = [None for x in range(len(adjMatrix))]# populates a list from 0 to len(cities) all with None
-    prqu = [x for x in range(len(adjMatrix))]   # populates a list from 0 to len(cities) with numbers 0 to len(cities)
+def MST_Prim(cities):
+    key = [sys.maxsize for x in range(len(cities))] # populates a list from 0 to len(cities) with int max
+    parent = [None for x in range(len(cities))]     # populates a list from 0 to len(cities) all with None
+    queue = [x for x in range(len(cities))]         # populates a list from 0 to len(cities) with numbers 0 to len(cities) to be a priority queue
     key[0] = 0
-    mergeSort(prqu, key, 0, len(prqu) - 1)
+    mergeSort(queue, key, 0, len(queue) - 1)
 
-    while len(prqu) > 0:
-        u = prqu.pop(0)
-        for v in [v for v in prqu if adjMatrix[u][v] < key[v]]:
-            parent[v] = u
-            key[v] = adjMatrix[u][v]
-            mergeSort(prqu, key, 0, len(prqu) - 1)
+    while len(queue) > 0:
+        u = queue.pop(0)
+        for v in queue:
+            dist = EuclideanDistance(cities[u], cities[v])
+            if dist < key[v]:
+                parent[v] = u
+                key[v] = EuclideanDistance(cities[u], cities[v])
+                mergeSort(queue, key, 0, len(queue) - 1)
     return parent
 
-def mstToAdjList(adjMatrix, mst):
-    adjList = []
+def mstToAdjList(mst):
+    adjList = OrderedDict()
     for i in range(1, len(mst)):
-        adjList.append({mst[i]: {i: adjMatrix[i][mst[i]]}})
+        if mst[i] in adjList:          # does key mst[i] already exist? Then the list at mst[i] is not empty
+            adjList[mst[i]].append(i)  # append vertex v into the list at key mst[i] (vertex u)
+        else:                          # append the first vertex into the list at key mst[i]
+            adjList[mst[i]] = [i]      # from vertex u to vertex v
     return adjList
-    print(adjList[1][0])
-    # stack = []
-    # stack.append(mst[0])
-    # while len(stack) != 0:
-    #     if stack[len(stack) - 1] in mst:
-    #         stack.append(mst.index(stack[len(stack) - 1]))
-    #     else:
-    #         stack.pop()
-    # adjList = {}
-    # for i in range(0, len(adjMatrix)): # loop through all cities
-    #     adjV = {}
-    #     for j in range(0, len(mst)): # loop through all parent data
-    #         if i == mst[j]:
-    #             adjV[j] = adjMatrix[i][j]
-    #     adjList[i] = adjV
-    # return adjList
 
-def dfs(adjList):
-    vstd = []
+def dfs(adjList, cities):
     stack = []
-    stack.append(0)
-    #	print (stack)
+    disc = []
+    stack.append(0)  # u = 0, the starting vertex
+    disc.append(0)   # u = 0, the starting vertex
+    dist = 0
+    while len(stack) > 0:
+        if stack[len(stack) - 1] in adjList:                        # does key vertex u exist in adjList?
+            stack.append(adjList[stack[len(stack) - 1]][0])         # append the first element (vertex v) in the list at key vertex u to the stack
+            disc.append(stack[len(stack) - 1])                      # append the vertices in the order they're discovered in
+            dist += EuclideanDistance(cities[disc[len(disc)-2]], cities[disc[len(disc)-1]]) # add on top of dist the distance traveled from u to v
+            # dist += adjMatrix[disc[len(disc)-2]][disc[len(disc)-1]] # add on top of dist the distance traveled from u to v
+            if len(adjList[stack[len(stack) - 2]]) - 1 == 0:        # is the list value at key vertex u empty?
+                del adjList[stack[len(stack) - 2]]                  # delete the key/value pair
+            else:                                                   # the list value at key vertex u still contains other vertices within it
+                del adjList[stack[len(stack) - 2]][0]               # delete the first element in the array at key vertex u
+        else:                                                       # vertex u key does not exist in adjList
+            stack.pop()                                             # pop vertex u from stack and try a different vertex
+    dist += EuclideanDistance(cities[disc[len(disc)-1]], cities[0])
+    # dist += adjMatrix[disc[len(disc)-1]][0]                         # add on top of dist the distance traveled from u back to the starting vertex
+    print(disc)
+    print(dist)
 
-    while (len(stack) > 0):
-        u = stack.pop()
-        if not (u in vstd):
-            vstd.append(u)
-            auxStack = []
-            for eachAdj in sorted(adjList[u].items(), key=lambda x: x[1], reverse=True):
-                v = eachAdj[0]
-                if not (v in vstd):
-                    auxStack.append(v)
-            while len(auxStack) > 0:
-                stack.append(auxStack.pop(0))
-    #			print (stack)
-
-    return vstd
+def buildAdjMatrix(cities):
+    adjMatrix = [[0 for x in range(len(cities))] for y in range(len(cities))]
+    for u in range(0, len(cities)):
+        for v in range(u + 1, len(cities)):
+            ij = EuclideanDistance(cities[u], cities[v])
+            adjMatrix[u][v] = ij
+            adjMatrix[v][u] = ij
+    return adjMatrix
 
 def printDistances(distMatrix):
     print('    ', end='')
@@ -142,67 +113,18 @@ def printDistances(distMatrix):
 # -----------------------------------------------------------------------------
 def main():
     cities = []
-    visited_cities = []
-    fileName = 'tsp_example_1.txt'
-    inputFile = open(fileName, 'r')
-    # get cities from input file into a list
-    cities = []
-    for line in inputFile:
-        city = line.split()
-        cities.append({'id': int(city[0]), 'x': int(city[1]), 'y': int(city[2])})
-    inputFile.close()
-    #
-    # print(cities)
+    fileName = 'tsp_example_3.txt'
+    with open(fileName, 'r') as inputFile:
+        for line in inputFile:
+            city = line.split()
+            cities.append([int(city[0]), int(city[1]), int(city[2])])
 
-    # init adjacency matrix for graph (every city connected to every other city)
-    adjMatrix = [[0 for x in range(len(cities))] for y in range(len(cities))]
-    for u in range(0, len(cities)):
-        for v in range(u + 1, len(cities)):
-            ij = dist(cities[u], cities[v])
-            adjMatrix[u][v] = ij
-            adjMatrix[v][u] = ij
+    mst = MST_Prim(cities)
 
-    printDistances(adjMatrix)
+    adjList = mstToAdjList(mst)
 
-    # create minimum spanning tree (MST) using Prim's algorithm which is
-    # faster on dense graphs than Kruskal's algorithm - I consider my graph
-    # to be dense because every vertex (city) is connected to every other
-    mst = MST_Prim(adjMatrix)
-    print(mst)
-    # mst = kruskalsAlg(adjMatrix)
-    #	print (mst)
+    dfs(adjList, cities)
 
-    # convert mst into adjacencyList
-    adjList = mstToAdjList(adjMatrix, mst)
-    print(adjList)
-    #	print (adjList)
-
-    # get DFS discovered order
-    # disc = dfs(adjList)
-    # #	print (disc)
-    #
-    # # calc the total distance from city 0 to 1 to 2 to n-1 to n to 0
-    # totalDist = 0
-    # iterCities = iter(disc) # return an iterator for the given object
-    # prevCity = cities[disc[0]]
-    # next(iterCities)  # skip the very first city
-    # for eachItem in iterCities:
-    #     eachCity = cities[eachItem]
-    #     # get distance to eachCity from the prevCity
-    #     addDist = dist(eachCity, prevCity)
-    #     totalDist = totalDist + addDist
-    #     prevCity = eachCity
-    #
-    # # get distance from last city back to first city
-    # addDist = dist(prevCity, cities[disc[0]])
-    # totalDist = totalDist + addDist
-    #
-    # # write output to file
-    # # outFil.write(str(totalDist) + '\n')
-    # print(totalDist)
-    # iterCities = iter(disc)
-    # for eachCity in iterCities:
-    #     print(eachCity)
 
 if __name__ == "__main__":
     main()
