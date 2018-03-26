@@ -79,15 +79,13 @@ def dfs(adjList, cities):
             stack.append(adjList[stack[len(stack) - 1]][0])         # append the first element (vertex v) in the list at key vertex u to the stack
             disc.append(stack[len(stack) - 1])                      # append the vertices in the order they're discovered in
             dist += EuclideanDistance(cities[disc[len(disc)-2]], cities[disc[len(disc)-1]]) # add on top of dist the distance traveled from u to v
-            # dist += adjMatrix[disc[len(disc)-2]][disc[len(disc)-1]] # add on top of dist the distance traveled from u to v
             if len(adjList[stack[len(stack) - 2]]) - 1 == 0:        # is the list value at key vertex u empty?
                 del adjList[stack[len(stack) - 2]]                  # delete the key/value pair
             else:                                                   # the list value at key vertex u still contains other vertices within it
                 del adjList[stack[len(stack) - 2]][0]               # delete the first element in the array at key vertex u
         else:                                                       # vertex u key does not exist in adjList
             stack.pop()                                             # pop vertex u from stack and try a different vertex
-    dist += EuclideanDistance(cities[disc[len(disc)-1]], cities[0])
-    # dist += adjMatrix[disc[len(disc)-1]][0]                         # add on top of dist the distance traveled from u back to the starting vertex
+    dist += EuclideanDistance(cities[disc[len(disc)-1]], cities[0]) # add on top of dist the distance traveled from u back to the starting vertex
     print(disc)
     print(dist)
 
